@@ -1,27 +1,56 @@
-# 🐱 Melisso — AI Chat Agent
+<div align="center">
 
-> Agente conversacional inteligente construído com **Claude Haiku 4.5**, streaming em tempo real, rate limiting em 3 camadas e suporte multilíngue. Integrado como widget flutuante em um portfólio Next.js.
+<img src="assets/melisso-avatar.jpeg" alt="Melisso — o gato que virou IA" width="140" style="border-radius: 50%;" />
 
-**[Demo ao vivo →](https://vhmac.com)**
+# Melisso — A Camada de IA do Meu Portfólio
 
----
+**Um agente conversacional com streaming em tempo real, arquitetura serverless e alma de gato.**
 
-## 📋 Visão Geral
+[![Live Demo](https://img.shields.io/badge/demo-vhmac.com-blue?style=for-the-badge)](https://vhmac.com)
+[![Claude Haiku 4.5](https://img.shields.io/badge/LLM-Claude_Haiku_4.5-orange?style=flat-square)](https://anthropic.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
-O **Melisso** é um assistente de IA com persona de gato 🐱 que guia visitantes pelo portfólio de Victor Campos. Ele responde perguntas sobre projetos, experiência profissional, habilidades técnicas e informações de contato — tudo via chat fluido com streaming em tempo real.
-
-### Por que este projeto é relevante
-
-- **Streaming real**: Respostas aparecem palavra por palavra via `ReadableStream`, sem polling
-- **Rate limiting serverless**: 3 camadas (burst/hourly/daily) com Upstash Redis, sem infraestrutura
-- **Segurança**: Input sanitization, validação rigorosa, HTML stripping, abort controllers
-- **UX avançada**: Typing indicators, ações navegáveis, prompts sugeridos, session persistence
-- **i18n nativo**: Português e inglês com detecção automática de idioma
-- **Performance**: Lazy loading (SSR=false), sliding window de contexto, debounce anti-spam
+</div>
 
 ---
 
-## 🏛️ Arquitetura
+## A história por trás do nome
+
+<img src="assets/melisso-avatar.jpeg" alt="Melisso — o gato real" width="220" align="right" style="margin-left: 16px; border-radius: 12px;" />
+
+O Melisso existe na vida real. É o meu gato.
+
+Quando eu o adotei, achava que era fêmea — o nome era Melissa. Quando descobri que era macho, virou **Melisso**. Ele tá sempre ali do lado enquanto eu trabalho, então nada mais justo do que colocar o nome dele no projeto.
+
+Mas além da homenagem, o nome carrega intenção: **um portfólio não precisa ser uma landing page estática e impessoal.** O Melisso é a camada de IA que traz dinamismo, inteligência e personalidade para a experiência — transforma visitantes passivos em conversas reais.
+
+> **[Veja o Melisso em ação →](https://vhmac.com)**
+
+---
+
+## O que o Melisso resolve
+
+Se você está aqui, provavelmente veio do meu [LinkedIn](https://linkedin.com/in/vhmac), do meu [portfólio](https://vhmac.com), ou de ambos. Este repositório mostra **como** eu penso engenharia — não apenas o resultado final.
+
+O Melisso é um agente de chat com IA embarcado no portfólio que:
+
+- **Tira dúvidas sobre mim** — projetos, stack, experiência, certificações
+- **Guia a navegação** — sugere seções e filtra projetos via botões de ação
+- **Atende recrutadores e interessados** — respostas rápidas, contextuais e bilíngues (pt/en)
+- **Humaniza a experiência** — streaming em tempo real com persona de gato, nunca um chatbot genérico
+
+**A questão técnica que vale a pena observar aqui:** não é só um wrapper de API. É um sistema com streaming nativo, rate limiting em 3 camadas, sanitização de input, prompt engineering estruturado e zero dependências desnecessárias.
+
+<div align="center">
+<img src="assets/chat.png" alt="Melisso Chat — Boas-vindas" width="380" style="border-radius: 12px; margin-top: 16px;" />
+<br />
+<em>Print real do chat com a mensagem de boas-vindas e prompts sugeridos</em>
+</div>
+
+---
+
+## Arquitetura
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -58,79 +87,54 @@ O **Melisso** é um assistente de IA com persona de gato 🐱 que guia visitante
                     └───────────────────┘
 ```
 
-### Fluxo de uma mensagem
-
-1. **Usuário digita** → `ChatWindow` captura input (max 500 chars, debounce 1s)
-2. **`useChat()` processa** → Cancela stream anterior (AbortController), adiciona ao state
-3. **`POST /api/chat`** → Valida request, verifica 3 camadas de rate limit
-4. **Claude Haiku 4.5** → Recebe sliding window (últimas 10 msgs) + system prompt
-5. **Streaming** → Chunks de texto fluem via `ReadableStream` → `TextDecoder` → state update
-6. **Parse ações** → Extrai `<!--action:{...}-->` tags → renderiza como botões de navegação
-7. **Persist** → `sessionStorage` salva histórico (limpa ao fechar aba)
-
----
-
-## 🛠️ Tech Stack
-
-| Camada | Tecnologia | Propósito |
-|--------|-----------|-----------|
-| **LLM** | Claude Haiku 4.5 | Geração de respostas (300 tokens max, temp 1) |
-| **SDK** | @anthropic-ai/sdk | Cliente oficial da Anthropic com streaming |
-| **Rate Limit** | Upstash Redis + @upstash/ratelimit | 3 camadas serverless (burst/hourly/daily) |
-| **API** | Next.js Route Handler | POST endpoint com streaming via ReadableStream |
-| **Frontend** | React 18+ | Componentes client-side com hooks |
-| **Animações** | Framer Motion | Spring animations, AnimatePresence, reduced motion |
-| **i18n** | next-intl | Bilíngue (pt/en) com detecção automática |
-| **State** | Custom hook (useChat) | Session storage, abort control, debounce |
-
----
-
-## 📁 Estrutura do Projeto
+### Fluxo completo de uma mensagem
 
 ```
-src/
-├── api/chat/
-│   └── route.ts              # API Route — validation, rate limit, Claude streaming
-├── components/
-│   ├── chat-widget.tsx        # Orchestrator — scroll detection, navigation actions, Lenis
-│   ├── chat-widget-loader.tsx # Dynamic import wrapper (SSR = false)
-│   ├── chat-window.tsx        # UI — messages, typing indicator, action buttons, input
-│   └── chat-bubble.tsx        # FAB — avatar, notification badge, spring animation
-├── hooks/
-│   └── use-chat.ts            # State — messages, streaming, session storage, debounce
-├── lib/
-│   ├── melisso-context.ts     # System prompt + persona + professional context JSON
-│   └── rate-limit.ts          # 3-layer Upstash Redis rate limiter
-├── types/
-│   └── index.ts               # ChatAction, ChatMessage, ChatApiRequest
-└── messages/
-    ├── pt.json                # Traduções português
-    └── en.json                # Traduções inglês
-
-assets/
-└── melisso-avatar.jpeg        # Avatar do Melisso
-
-docs/
-├── architecture.md            # Detalhes de arquitetura
-└── methodology.md             # Metodologia e boas práticas
+Usuário digita → debounce (1s) → sanitize + validate → rate limit check (3 camadas)
+→ sliding window (últimas 10 msgs) → Claude Haiku 4.5 → ReadableStream
+→ chunks renderizados em tempo real → parse de action tags → botões de navegação
+→ sessionStorage persist
 ```
+
+Cada etapa existe por uma razão. Nenhuma foi adicionada "porque sim". Abaixo, explico as decisões.
 
 ---
 
-## 🔒 Rate Limiting — 3 Camadas
+## Decisões técnicas e os porquês
 
-O sistema usa **sliding window** (janela deslizante) com Upstash Redis serverless:
+> Este é o core do repositório. Se você é tech lead, recrutador técnico ou engenheiro, esta seção é para você.
 
-| Camada | Limite | Janela | Propósito |
-|--------|--------|--------|-----------|
-| **Burst** | 5 msgs | 10 segundos | Bloqueia spam rápido e curl loops |
-| **Hourly** | 20 msgs | 1 hora | Generoso para um recrutador real navegando |
-| **Daily** | 50 msgs | 24 horas | Protege o budget mensal de tokens |
-
-As 3 camadas são checadas **em paralelo** (`Promise.all`) — a primeira que falhar retorna `429 Too Many Requests` com header `Retry-After`.
+### Por que streaming nativo em vez de AI SDK?
 
 ```typescript
-// Todas as camadas checadas simultaneamente
+// ReadableStream puro — sem abstrações, sem SDKs de streaming
+const readableStream = new ReadableStream({
+  async start(controller) {
+    for await (const event of stream) {
+      if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+        controller.enqueue(encoder.encode(event.delta.text));
+      }
+    }
+    controller.close();
+  },
+});
+```
+
+O Vercel AI SDK é excelente, mas adiciona **~15KB ao bundle** e abstrai o controle do stream. Aqui, eu preciso de controle total: parsing de action tags inline, abort em qualquer ponto, e zero bytes a mais no bundle do cliente. `ReadableStream` nativo resolve isso com **zero dependências extras**.
+
+### Por que 3 camadas de rate limiting?
+
+Uma camada só não dá conta. Um recrutador real navegando por 20 minutos precisa de espaço. Um bot fazendo curl loop precisa ser bloqueado em segundos. A solução:
+
+| Camada | Limite | Janela | Raciocínio |
+|--------|--------|--------|------------|
+| **Burst** | 5 msgs | 10s | Mata bots e spam automatizado imediatamente |
+| **Hourly** | 20 msgs | 1h | Generoso para uso humano real — um recrutador navega tranquilo |
+| **Daily** | 50 msgs | 24h | Proteção de budget — Claude tem custo por token |
+
+As 3 camadas rodam **em paralelo** (`Promise.all`) — a mais restritiva que falhar retorna `429` com `Retry-After` header. Algoritmo: **sliding window** (mais preciso que fixed window, sem bursts nas fronteiras).
+
+```typescript
 const [burst, hourly, daily] = await Promise.all([
   burstLimiter.limit(ip),
   hourlyLimiter.limit(ip),
@@ -138,124 +142,189 @@ const [burst, hourly, daily] = await Promise.all([
 ]);
 ```
 
----
+### Por que sessionStorage em vez de banco de dados?
 
-## 🛡️ Segurança
+**Privacy first.** O chat é descartável por design — não preciso (e não quero) persistir conversas de visitantes. `sessionStorage` limpa automaticamente ao fechar a aba. Sem cookies, sem tracking, sem round-trips ao servidor para carregar histórico.
 
-| Medida | Implementação |
-|--------|--------------|
-| **Input Sanitization** | HTML stripping via regex antes de enviar ao LLM |
-| **Length Caps** | Max 500 chars/msg, max 30 msgs/sessão |
-| **Sliding Window** | Apenas últimas 10 msgs enviadas ao LLM (economia de tokens) |
-| **Abort Controller** | Cancela stream anterior se usuário enviar nova msg |
-| **Rate Limiting** | 3 camadas serverless (burst + hourly + daily) |
-| **IP Detection** | Via `x-forwarded-for` header (Vercel/proxy) |
-| **Type Validation** | Validação rigorosa de request body antes de processar |
-| **No Secrets Leaked** | API key apenas server-side, nunca exposta ao client |
+### Por que Claude Haiku 4.5?
 
----
+Testei GPT-4o-mini e Claude Haiku lado a lado. Para respostas curtas (2-4 frases), concisas e com persona, o Haiku ganhou em **custo-benefício e naturalidade**. Com `temperature: 1` e `max_tokens: 300`, as respostas soam humanas sem divagar.
 
-## 🤖 System Prompt Engineering
-
-O Melisso usa um **system prompt estruturado** com:
-
-1. **Persona definida**: Gato real de 4 anos, simpático e profissional
-2. **Contexto JSON**: Dados profissionais do Victor (skills, projetos, experiência)
-3. **Instruções de navegação**: Tags `<!--action:{...}-->` que o frontend parseia em botões
-4. **Guardrails**: Limites de escopo, redirecionamento gentil, honestidade
+### Por que action tags no texto em vez de structured output?
 
 ```
-System Prompt (~800 tokens)
-├── Persona (quem é o Melisso, origem do nome)
-├── Personalidade (conciso, 2-4 frases, emoji moderado)
-├── VICTOR_CONTEXT (JSON com dados profissionais)
-├── Navegação (formato de action tags)
-└── Regras (escopo, limites, comportamento)
+<!--action:{"type":"navigate","target":"#projects","filter":"ai","label":"Ver projetos de IA"}-->
 ```
+
+Structured output (tool use / function calling) exige que o modelo termine de pensar antes de retornar a estrutura. Com action tags **inline no texto**, o streaming funciona normalmente — o frontend parseia as tags no final, extraindo botões de navegação sem interromper o fluxo. Simples, eficiente, zero latência adicional.
 
 ---
 
-## ⚡ Performance
+## Stack técnica
 
-- **Lazy Loading**: Widget carregado via `dynamic()` com `ssr: false` — zero impacto no LCP
-- **Sliding Window**: Apenas últimas 10 mensagens enviadas ao LLM (reduz latência e tokens)
-- **Streaming**: Respostas aparecem em tempo real, sem esperar processamento completo
-- **Debounce**: 1 segundo entre envios (previne double-sends e spam)
-- **Abort Controller**: Cancela requests pendentes quando novo envio acontece
-- **Session Storage**: Persistência local sem round-trips ao servidor
+| Camada | Tecnologia | Por que essa escolha |
+|--------|-----------|----------------------|
+| **LLM** | Claude Haiku 4.5 | Melhor custo/qualidade para respostas curtas com persona |
+| **SDK** | @anthropic-ai/sdk | Cliente oficial com suporte nativo a streaming |
+| **Rate Limit** | Upstash Redis | Serverless, sliding window, funciona nativamente na Vercel |
+| **API** | Next.js Route Handler | Streaming via ReadableStream, sem serverless cold start |
+| **Frontend** | React 18+ | Client components com hooks customizados |
+| **Animações** | Framer Motion | Spring physics, `AnimatePresence`, respeita `prefers-reduced-motion` |
+| **i18n** | next-intl | Detecção automática de idioma, fallback configurável |
+| **State** | useChat (custom hook) | Session persistence, abort control, debounce, action parsing |
 
 ---
 
-## 🚀 Setup & Integração
+## Segurança — não foi adicionada depois, foi premissa
 
-### Variáveis de Ambiente
+| Vetor | Proteção | Implementação |
+|-------|----------|---------------|
+| **Injection (XSS)** | HTML stripping | Regex remove tags antes de enviar ao LLM |
+| **Spam / DDoS** | Rate limiting 3 camadas | Burst + hourly + daily via Upstash Redis |
+| **API key exposure** | Server-side only | Chave nunca trafega para o client |
+| **Payload abuse** | Validação rigorosa | Max 500 chars/msg, max 30 msgs/sessão, type checking |
+| **Token drain** | Sliding window | Apenas últimas 10 msgs enviadas ao LLM |
+| **Race conditions** | AbortController | Cancela stream anterior a cada novo envio |
+| **Memory leak** | Auto-cleanup | Timers, observers e controllers são limpos no unmount |
+| **IP spoofing** | Header extraction | `x-forwarded-for` com fallback para Vercel/proxy |
 
-```bash
-cp .env.example .env.local
+---
+
+## Prompt Engineering
+
+O system prompt não é um texto jogado — é uma **arquitetura de contexto** com ~800 tokens:
+
+```
+System Prompt
+├── Persona → Quem é o Melisso (gato real, 4 anos, história do nome)
+├── Personalidade → 2-4 frases, emoji moderado, honesto, conciso
+├── VICTOR_CONTEXT → JSON estruturado (skills, projetos, experiência, contato)
+├── Navegação → Formato de action tags para botões clicáveis
+└── Guardrails → Escopo definido, redirecionamento gentil, zero invenção
 ```
 
-| Variável | Obrigatória | Descrição |
-|----------|------------|-----------|
-| `ANTHROPIC_API_KEY` | ✅ | Chave da API Anthropic (Claude) |
-| `UPSTASH_REDIS_REST_URL` | ✅ | URL do Redis Upstash |
-| `UPSTASH_REDIS_REST_TOKEN` | ✅ | Token de autenticação Upstash |
+O contexto profissional é injetado como **JSON raw** — não texto livre. Isso dá ao modelo dados estruturados para consultar, reduz alucinação e mantém o prompt enxuto.
+
+---
+
+## Estrutura do projeto
+
+```
+src/
+├── api/chat/
+│   └── route.ts              # Pipeline: validate → rate limit → stream → respond
+├── components/
+│   ├── chat-widget.tsx        # Orchestrator: scroll detection, navigation, Lenis
+│   ├── chat-widget-loader.tsx # Entry point: dynamic import, SSR = false
+│   ├── chat-window.tsx        # UI: messages, typing indicator, actions, input
+│   └── chat-bubble.tsx        # FAB: avatar, notification badge, spring animation
+├── hooks/
+│   └── use-chat.ts            # Core: state, streaming, session, debounce, abort
+├── lib/
+│   ├── melisso-context.ts     # Prompt engineering: persona + contexto profissional
+│   └── rate-limit.ts          # 3-layer rate limiter com Upstash Redis
+├── types/
+│   └── index.ts               # Contratos: ChatAction, ChatMessage, ChatApiRequest
+└── messages/
+    ├── pt.json                # i18n: Português
+    └── en.json                # i18n: English
+```
+
+**Princípio:** cada arquivo tem uma responsabilidade. Nenhum ultrapassa 150 linhas. Sem god classes, sem acoplamento silencioso.
+
+---
+
+## Performance
+
+| Otimização | Como | Impacto |
+|------------|------|---------|
+| **Lazy loading** | `dynamic()` com `ssr: false` | Zero impacto no LCP — o widget não existe no bundle do servidor |
+| **Streaming** | `ReadableStream` nativo | TTFB < 500ms — usuário vê a resposta sendo "digitada" |
+| **Sliding window** | Últimas 10 msgs ao LLM | Reduz latência e custo de input tokens |
+| **Debounce** | 1s entre envios | Previne double-sends e spam acidental |
+| **AbortController** | Cancela stream pendente | Sem race conditions, sem respostas fantasma |
+| **Session storage** | Persistência local | Zero round-trips ao servidor para carregar histórico |
+| **useCallback** | Memoização de handlers | Re-renders eficientes em toda a árvore |
+
+---
+
+## Acessibilidade
+
+Não é feature — é requisito:
+
+- `role="dialog"` + `aria-label` no chat window
+- `role="log"` + `aria-live="polite"` no container de mensagens
+- `aria-label` em todos os botões de ação
+- `prefers-reduced-motion` respeitado em todas as animações
+- Teclado: `Enter` envia, `Shift+Enter` quebra linha, `Esc` fecha
+
+---
+
+## Métricas
+
+| Métrica | Valor |
+|---------|-------|
+| Componentes React | 4 |
+| Custom hooks | 1 |
+| Linhas de código | ~900 |
+| Bundle size (gzipped, sem deps) | ~12KB |
+| TTFB médio (streaming) | < 500ms |
+| System prompt | ~800 tokens |
+| Max tokens/resposta | 300 |
+| Zero `any` no codebase | ✅ |
+
+---
+
+## Setup
 
 ### Pré-requisitos
 
 - Node.js >= 18
 - Next.js >= 14 (App Router)
-- Conta na [Anthropic](https://console.anthropic.com/) (API key)
-- Conta no [Upstash](https://upstash.com/) (Redis database)
+- [Anthropic API Key](https://console.anthropic.com/)
+- [Upstash Redis](https://upstash.com/)
 
-### Integração no seu projeto
+### Variáveis de ambiente
 
-1. Copie a pasta `src/` para o seu projeto Next.js
-2. Ajuste os imports (`@/lib/utils`, `@/lib/constants`) para seu projeto
-3. Adicione `<ChatWidgetLoader />` no seu layout
-4. Configure as variáveis de ambiente
-5. Customize o `melisso-context.ts` com seus dados profissionais
+```bash
+cp .env.example .env.local
+```
 
----
+| Variável | Descrição |
+|----------|-----------|
+| `ANTHROPIC_API_KEY` | Chave da API Anthropic (Claude) |
+| `UPSTASH_REDIS_REST_URL` | URL do Redis serverless |
+| `UPSTASH_REDIS_REST_TOKEN` | Token de autenticação Upstash |
 
-## 🎨 Customização
+### Integração
 
-### Trocar a persona
+```tsx
+// No layout principal do seu Next.js App Router
+import { ChatWidgetLoader } from "@/components/chat-widget-loader";
 
-Edite `src/lib/melisso-context.ts`:
-- Altere `VICTOR_CONTEXT` com seus dados profissionais
-- Modifique o `MELISSO_SYSTEM_PROMPT` para sua persona
-- Ajuste as seções de navegação válidas
+export default function Layout({ children }) {
+  return (
+    <>
+      {children}
+      <ChatWidgetLoader />
+    </>
+  );
+}
+```
 
-### Ajustar rate limits
-
-Edite `src/lib/rate-limit.ts`:
-- `burstLimiter`: Proteção contra spam rápido
-- `hourlyLimiter`: Uso normal por sessão
-- `dailyLimiter`: Cap diário por IP
-
-### Alterar modelo LLM
-
-Em `src/api/chat/route.ts`:
-- `model`: Troque para outro modelo Claude (ou adapte para OpenAI)
-- `max_tokens`: Ajuste o tamanho máximo de resposta
-- `temperature`: Controle a criatividade (0-1)
+Customize a persona em `src/lib/melisso-context.ts` e os rate limits em `src/lib/rate-limit.ts`.
 
 ---
 
-## 📊 Métricas de Design
+## Documentação técnica adicional
 
-| Métrica | Valor |
-|---------|-------|
-| Componentes React | 4 (bubble, window, widget, loader) |
-| Hooks customizados | 1 (useChat) |
-| Linhas de código | ~900 |
-| Tamanho do bundle (tree-shaken) | ~12KB gzipped (sem deps) |
-| Latência média de resposta | < 500ms (TTFB streaming) |
-| System prompt | ~800 tokens |
-| Max tokens por resposta | 300 |
+Para quem quer ir mais fundo:
+
+- **[`docs/architecture.md`](docs/architecture.md)** — Detalhamento camada por camada, diagramas e design decisions completas
+- **[`docs/methodology.md`](docs/methodology.md)** — Princípios de desenvolvimento, boas práticas e stack decisions log
 
 ---
 
-## 📄 Licença
+## Licença
 
 MIT © [Victor Campos](https://github.com/euvhmac)
