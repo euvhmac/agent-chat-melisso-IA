@@ -1,0 +1,38 @@
+{
+  "name": "agent-chat-melisso-ia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Melisso — AI chatbot agent powered by Claude Haiku 4.5 with streaming, 3-layer rate limiting, and i18n support. Built as a Next.js API route + React widget.",
+  "author": "Victor Campos <euvhmendes@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/euvhmac/agent-chat-melisso-IA.git"
+  },
+  "keywords": [
+    "chatbot",
+    "ai-agent",
+    "claude",
+    "anthropic",
+    "streaming",
+    "rate-limiting",
+    "next.js",
+    "react",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.79.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.37.0"
+  },
+  "peerDependencies": {
+    "next": ">=14.0.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "framer-motion": ">=10.0.0",
+    "next-intl": ">=3.0.0"
+  }
+}

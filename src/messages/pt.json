@@ -1,0 +1,18 @@
+{
+  "chat": {
+    "welcome": "Oi! Eu sou o Melisso 🐱 o gato do Victor — e o melhor amigo dele!\nEle me trouxe pra cá pra te ajudar a conhecer o trabalho dele. Pode me perguntar qualquer coisa sobre projetos, experiência ou skills!",
+    "suggestedPrompts": [
+      "Quais os projetos de IA do Victor?",
+      "Me conta sobre a experiência dele",
+      "Como entrar em contato?"
+    ],
+    "placeholder": "Digite uma mensagem...",
+    "send": "Enviar",
+    "close": "Fechar chat",
+    "open": "Abrir chat com Melisso",
+    "online": "Online",
+    "typing": "Digitando...",
+    "limitReached": "Você atingiu o limite de mensagens por sessão. Volte mais tarde! 🐱",
+    "errorMessage": "Ops, algo deu errado. Tente novamente em alguns segundos 🐱"
+  }
+}
