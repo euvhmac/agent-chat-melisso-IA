@@ -1,7 +1,3 @@
-<div align="center">
-
-<img src="assets/melisso-avatar.jpeg" alt="Melisso — o gato que virou IA" width="140" style="border-radius: 50%;" />
-
 # Melisso — A Camada de IA do Meu Portfólio
 
 **Um agente conversacional com streaming em tempo real, arquitetura serverless e alma de gato.**
@@ -10,8 +6,6 @@
 [![Claude Haiku 4.5](https://img.shields.io/badge/LLM-Claude_Haiku_4.5-orange?style=flat-square)](https://anthropic.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
-
-</div>
 
 ---
 
